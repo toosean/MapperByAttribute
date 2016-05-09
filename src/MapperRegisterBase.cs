@@ -29,8 +29,8 @@ namespace MapperByAttribute
 
         protected virtual bool HasCustomFrom(Type source, Type destination)
         {
-            var interfaceType = _typeCustomMapperFrom.MakeGenericType(destination);
-            return (source.GetInterfaces().Any(a => a == interfaceType));
+            var interfaceType = _typeCustomMapperFrom.MakeGenericType(source);
+            return (destination.GetInterfaces().Any(a => a == interfaceType));
         }
         protected virtual bool HasCustomTo(Type source, Type destination)
         {
@@ -40,10 +40,10 @@ namespace MapperByAttribute
 
         protected virtual void InvokeCustomFrom(object source, object destination)
         {
-            var interfaceType = _typeCustomMapperFrom.MakeGenericType(destination.GetType());
-            if (source.GetType().GetInterfaces().Any(a => a == interfaceType))
+            var interfaceType = _typeCustomMapperFrom.MakeGenericType(source.GetType());
+            if (destination.GetType().GetInterfaces().Any(a => a == interfaceType))
             {
-                interfaceType.GetMethod("MapperFrom").Invoke(source, new object[] { destination });
+                interfaceType.GetMethod("MapperFrom").Invoke(destination, new object[] { source });
             }
         }
         protected virtual void InvokeCustomTo(object source, object destination)
