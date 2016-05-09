@@ -2,6 +2,7 @@
 
 namespace MapperByAttribute
 {
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false,Inherited = true)]
     public class MapperAttribute : Attribute
     {
         public Type LinkType { get; protected set; }
