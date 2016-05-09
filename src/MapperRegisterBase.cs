@@ -21,6 +21,11 @@ namespace MapperByAttribute
         }
         public abstract void Register(Type type);
 
+        public virtual void Register(Assembly assembly)
+        {
+            var types = assembly.ExportedTypes.Where(w => w.IsDefined(typeof(MapperAttribute)));
+            foreach (var type in types) Register(type);
+        }
 
         protected virtual bool HasCustomFrom(Type source, Type destination)
         {
