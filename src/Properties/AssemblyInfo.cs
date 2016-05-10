@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // 有关程序集的一般信息由以下
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
-[assembly: AssemblyTitle("MapperAttribute")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("MapperByAttribute")]
+[assembly: AssemblyDescription("using AutoMapper by attribute")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("MapperAttribute")]
+[assembly: AssemblyCompany("sean")]
+[assembly: AssemblyProduct("MapperByAttribute")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
