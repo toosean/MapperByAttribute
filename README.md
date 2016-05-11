@@ -3,7 +3,7 @@ using C# attribute configuration AutoMapper
 
 see AutoMapper https://github.com/AutoMapper/AutoMapper
 
-##使用方法
+##How
 ```cs
 class Program
 {
