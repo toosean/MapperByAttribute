@@ -1,6 +1,7 @@
 # MapperByAttribute
-使用 Attribute 来配置 AutoMapper
-AutoMapper 见 https://github.com/AutoMapper/AutoMapper
+using C# attribute configuration AutoMapper
+
+see AutoMapper https://github.com/AutoMapper/AutoMapper
 
 ##使用方法
 ```cs
@@ -10,12 +11,12 @@ class Program
     {
         var mapper = new AutoMapperRegister();
 
-        //登记 Dto 对象
+        //register dto.
         mapper.Register<Dto>();
-        //登记一个程序集里所有的对象
+        //or you can register all with assembly.
         mapper.Register(typeof(Dto).Assembly);
         
-        //必须验证，否则 mapper 不生效
+        //require call AssertConfigurationIsValid before call map
         mapper.AssertConfigurationIsValid();
 
         var entity = new Entity { Id = 1, Name = "Sean", Password = "[Hash Password Bytes]" };
@@ -31,7 +32,7 @@ class Entity
     public string Password { get; set; }
 }
 
-[MapperTwoDirection(typeof(Entity))]
+[Mapper(typeof(Entity))]
 class Dto : ICustomMapperTo<Entity>
 {
     public string Name { get; set; }
