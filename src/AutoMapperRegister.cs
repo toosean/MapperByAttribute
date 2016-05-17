@@ -36,7 +36,7 @@ namespace MapperByAttribute
 
         public override void Register(Type type)
         {
-            if (!type.IsDefined(typeof(MapperAttribute))) throw new ArgumentException($"注册的类型没有添加 {nameof(MapperAttribute)} 特性。", nameof(type));
+            if (!type.IsDefined(typeof(MapperAttribute))) throw new ArgumentException($"cant find {nameof(MapperAttribute)} on {type}。", nameof(type));
 
             var mapperAttributes = type.GetCustomAttributes<MapperAttribute>();
             var mapperIgnoreProperties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public)
@@ -75,8 +75,6 @@ namespace MapperByAttribute
                         foreach (var ignoreProperty in mapperIgnoreProperties)
                         {
                             reverseDirectExpression = reverseDirectExpression.ForSourceMember(ignoreProperty.Name, o => o.Ignore());
-                            /*if (attr.LinkType.GetProperty(ignoreProperty.Name) != null)
-                                reverseDirectExpression = reverseDirectExpression.ForMember(ignoreProperty.Name, o => o.Ignore());*/
                         }
 
                         if (HasCustomTo(type, attr.LinkType)) reverseDirectExpression = reverseDirectExpression.AfterMap(InvokeCustomTo);
@@ -89,10 +87,12 @@ namespace MapperByAttribute
 
         public override TDestination Map<TSource, TDestination>(TSource source, TDestination desctination)
         {
+            if (_mapper == null) throw new InvalidOperationException("call AssertConfigurationIsValid is require.");
             return _mapper.Map(source, desctination);
         }
         public override object Map(object source, object desctination)
         {
+            if (_mapper == null) throw new InvalidOperationException("call AssertConfigurationIsValid is require.");
             return _mapper.Map(source, desctination);
         }
     }
