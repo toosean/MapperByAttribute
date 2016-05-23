@@ -38,9 +38,23 @@ namespace MapperByAttribute
         {
             if (!type.IsDefined(typeof(MapperAttribute))) throw new ArgumentException($"cant find {nameof(MapperAttribute)} on {type}。", nameof(type));
 
-            var mapperAttributes = type.GetCustomAttributes<MapperAttribute>();
+            var mapperAttributes = type.GetCustomAttributes<MapperAttribute>().ToArray();
+
             var mapperIgnoreProperties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                                            .Where(w => w.IsDefined(typeof(MapperIgnoreAttribute)));
+                                            .Where(w => w.IsDefined(typeof(MapperIgnoreAttribute)))
+                                            .Select(s => new {
+                                                property = s,
+                                                attrs = s.GetCustomAttributes<MapperIgnoreAttribute>().ToArray()
+                                            })
+                                            .ToArray();
+
+            var mapperForProperties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                                            .Where(w => w.IsDefined(typeof(MapperForAttribute)))
+                                            .Select(s => new {
+                                                property = s,
+                                                attrs = s.GetCustomAttributes<MapperForAttribute>().ToArray()
+                                            })
+                                            .ToArray();
 
             configurationList.Add(cfg =>
             {
@@ -48,12 +62,21 @@ namespace MapperByAttribute
                 {
                     IMappingExpression fromDirectExpression = null;
 
+                    var ignorePropertiesForLinkType = mapperIgnoreProperties.Where(w => w.attrs.Any(a => a.Type == attr.LinkType) || w.attrs.Any(a => a.Type == null)).ToArray();
+                    var forPropertiesForLinkeType = mapperForProperties.Where(w => w.attrs.Any(a => a.Type == attr.LinkType) || w.attrs.Any(a => a.Type == null)).ToArray();
+
                     if (attr.Direction == MapperDirect.From || attr.Direction == MapperDirect.Both)
                     {
                         fromDirectExpression = cfg.CreateMap(attr.LinkType, type);
 
-                        foreach (var ignoreProperty in mapperIgnoreProperties)
-                            fromDirectExpression = fromDirectExpression.ForMember(ignoreProperty.Name, o => o.Ignore());
+                        foreach (var ignoreProperty in ignorePropertiesForLinkType)
+                            fromDirectExpression = fromDirectExpression.ForMember(ignoreProperty.property.Name, o => o.Ignore());
+
+                        foreach (var forProperty in forPropertiesForLinkeType)
+                        {
+                            var forAttr = forProperty.attrs.FirstOrDefault(f => f.Type == attr.LinkType) ?? forProperty.attrs.First();
+                            fromDirectExpression = fromDirectExpression.ForMember(forProperty.property.Name, o => o.MapFrom(forAttr.ForName));
+                        }
 
                         if (HasCustomFrom(attr.LinkType, type)) fromDirectExpression = fromDirectExpression.AfterMap(InvokeCustomFrom);
 
@@ -72,9 +95,13 @@ namespace MapperByAttribute
 
                     if (reverseDirectExpression != null)
                     {
-                        foreach (var ignoreProperty in mapperIgnoreProperties)
+                        foreach (var ignoreProperty in ignorePropertiesForLinkType)
+                            reverseDirectExpression = reverseDirectExpression.ForSourceMember(ignoreProperty.property.Name, o => o.Ignore());
+
+                        foreach (var forProperty in forPropertiesForLinkeType)
                         {
-                            reverseDirectExpression = reverseDirectExpression.ForSourceMember(ignoreProperty.Name, o => o.Ignore());
+                            var forAttr = forProperty.attrs.FirstOrDefault(f => f.Type == attr.LinkType) ?? forProperty.attrs.First();
+                            reverseDirectExpression = reverseDirectExpression.ForMember(forAttr.ForName, o => o.MapFrom(forProperty.property.Name));
                         }
 
                         if (HasCustomTo(type, attr.LinkType)) reverseDirectExpression = reverseDirectExpression.AfterMap(InvokeCustomTo);

@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AutoMapperRegister.cs" />
+    <Compile Include="MapperFor.cs" />
     <Compile Include="MapperRegisterBase.cs" />
     <Compile Include="ICustomMapperFrom.cs" />
     <Compile Include="ICustomMapperTo.cs" />
